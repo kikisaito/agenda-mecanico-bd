@@ -1,54 +1,58 @@
 # Agenda Mecánico - Capa de Persistencia
 
-Este repositorio contiene la configuración y el modelo de datos para el sistema de gestión de citas de un taller mecánico. El proyecto está construido sobre un entorno de ejecución Node.js utilizando TypeScript y el ORM Prisma en su versión 7.
+Este repositorio contiene la configuración, el modelado de datos y los scripts de población inicial para el sistema de gestión de citas de un taller mecánico. El proyecto está desarrollado bajo un entorno Node.js utilizando TypeScript y el ORM Prisma en su versión 7.
 
-## Arquitectura Técnica
+## Desarrollo Asistido por Inteligencia Artificial (IA)
 
-El proyecto implementa una arquitectura moderna basada en módulos de ECMAScript (ESM) y utiliza las siguientes tecnologías clave:
+El desarrollo de este módulo de base de datos ha sido realizado con la asistencia de Inteligencia Artificial. La IA fue integrada como una herramienta estratégica para:
 
-- **Prisma 7.8.0**: Utilizado para el modelado de datos y la interfaz de consulta.
-- **PostgreSQL**: Motor de base de datos relacional alojado en Render.
-- **Driver Adapters**: Implementación obligatoria de Prisma 7 para conexiones directas mediante el paquete `pg` y `@prisma/adapter-pg`.
-- **TSX**: Ejecutor de scripts de TypeScript para procesos de automatización y población de datos.
+1. **Gestión de Versiones**: Resolución de incompatibilidades y cambios disruptivos introducidos en la versión 7 de Prisma.
+2. **Diseño de Arquitectura de Conexión**: Implementación de Driver Adapters para permitir la comunicación directa con infraestructuras en la nube (Render).
+3. **Depuración de Conectividad**: Resolución de protocolos SSL y handshakes de seguridad requeridos por proveedores externos.
 
-## Estructura del Modelo de Datos
+## Stack Tecnológico
 
-La base de datos se rige por los siguientes modelos principales definidos en el esquema:
+- **Entorno de Ejecución**: Node.js (Módulos ESM).
+- **Lenguaje**: TypeScript.
+- **ORM**: Prisma 7.8.0.
+- **Base de Datos**: PostgreSQL (Instancia en Render).
+- **Controladores**: pg, @prisma/adapter-pg (Driver Adapter).
+- **Ejecución de Scripts**: TSX.
 
-1. **Usuario**: Gestiona perfiles con roles diferenciados (cliente y mecánico).
-2. **TipoServicio**: Catálogo que define la duración (en minutos o días) y si el servicio impacta en la capacidad diaria del taller.
-3. **Cita**: Registro central que vincula usuarios con servicios, incluyendo estados de flujo (pendiente, aceptada, en curso, etc.).
-4. **OcupacionDiaria**: Entidad de apoyo para el cálculo de capacidad y disponibilidad por fechas.
-5. **ConfiguracionTaller**: Parámetros globales de operación como horarios y capacidad máxima por día.
+## Modelos de Datos
 
-## Configuración del Entorno
+El esquema se compone de las siguientes entidades principales:
 
-Para la ejecución del proyecto, es indispensable contar con un archivo `.env` en el directorio raíz. Debido a las políticas de seguridad de la infraestructura de Render, la cadena de conexión debe incluir obligatoriamente el modo SSL:
+- **Usuario**: Registro de clientes y mecánicos con control de acceso y roles.
+- **TipoServicio**: Catálogo de servicios técnicos con definición de tiempos y afectación a la capacidad del taller.
+- **Cita**: Gestión de solicitudes de servicio, vinculación de usuarios y estados del flujo de trabajo.
+- **OcupacionDiaria**: Control de carga operativa por fecha y horario.
+- **ConfiguracionTaller**: Definición de parámetros de negocio (capacidad diaria, horarios de apertura y cierre).
+
+## Configuración de Variables de Entorno
+
+Para que el proyecto funcione correctamente, es imperativo crear un archivo `.env` en la raíz del directorio. La cadena de conexión debe incluir explícitamente el parámetro de seguridad SSL para evitar cierres de conexión por parte del servidor:
 
 DATABASE_URL="postgresql://USUARIO:CONTRASEÑA@HOST:PUERTO/NOMBRE_BD?sslmode=require"
 
-## Instrucciones de Despliegue
+## Guía de Despliegue
 
-### 1. Instalación de Dependencias
-Instalar los módulos necesarios para el desarrollo y la ejecución del cliente de base de datos:
-
+### 1. Instalación
+Descargar e instalar todas las dependencias del proyecto:
 npm install
 
-### 2. Generación del Cliente Prisma
-Este paso es crucial para sincronizar los tipos de TypeScript con el esquema definido. En Prisma 7, este comando lee la configuración desde `prisma.config.ts`:
-
+### 2. Generación del Cliente
+Construir el motor de Prisma basado en el esquema y la configuración de adaptadores de la versión 7:
 npx prisma generate
 
-### 3. Sincronización de Esquema (Push)
-Para proyectar los modelos en la base de datos de Render sin el uso de migraciones tradicionales (ideal para fases de prototipado):
-
+### 3. Sincronización de Base de Datos
+Proyectar el modelo definido en `schema.prisma` directamente hacia la instancia de Render:
 npx prisma db push
 
 ### 4. Población de Datos (Seed)
-Para inicializar la base de datos con los servicios base y la configuración operativa del taller:
-
+Ejecutar el script para insertar los servicios base y la configuración operativa:
 npx prisma db seed
 
-## Notas sobre Prisma 7 y SSL
+## Notas Técnicas sobre Conectividad
 
-El proyecto utiliza un adaptador de controlador (`PrismaPg`) para gestionar la conexión. Esto permite una mayor flexibilidad y compatibilidad con entornos que requieren configuraciones de SSL específicas. En el script de semilla (`seed.ts`), se ha configurado el objeto `pool` con la propiedad `rejectUnauthorized: false` para permitir la comunicación cifrada con los certificados dinámicos de Render.
+Debido a que el proyecto utiliza la versión 7 de Prisma, la conexión directa por TCP se realiza mediante un adaptador de base de datos. En el archivo `seed.ts`, se ha configurado un `Pool` de conexiones que gestiona el cifrado SSL con la propiedad `rejectUnauthorized: false`, permitiendo la comunicación segura con certificados dinámicos.
