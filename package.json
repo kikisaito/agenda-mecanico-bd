@@ -1,0 +1,31 @@
+{
+  "name": "agenda-mecanico-bd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "@prisma/config": "^7.0.0",
+    "@types/node": "^20.19.39",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^16.0.0",
+    "prisma": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.0.0",
+    "pg": "^8.20.0"
+  }
+}

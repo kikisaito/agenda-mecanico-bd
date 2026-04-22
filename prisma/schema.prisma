@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RolUsuario {
+  cliente
+  mecanico
+}
+
+model Usuario {
+  id             Int          @id @default(autoincrement())
+  nombre         String
+  email          String       @unique
+  telefono       String
+  contrasena     String
+  rol            RolUsuario
+  fecha_creacion DateTime     @default(now())
+  activo         Boolean      @default(true)
+  citas          Cita[]
+}
+
+enum EstadoCita {
+  pendiente
+  aceptada
+  en_curso
+  rechazada
+  completada
+  cancelada
+}
+
+model TipoServicio {
+  id              Int     @id @default(autoincrement())
+  nombre          String
+  duracion_min    Int     @default(0)
+  duracion_dias   Int     @default(0)
+  ocupa_cupo_dia  Boolean
+  citas           Cita[]
+}
+
+model Cita {
+  id                   Int               @id @default(autoincrement())
+  cliente_id           Int
+  usuario              Usuario           @relation(fields: [cliente_id], references: [id])
+  tipo_servicio_id     Int
+  tipoServicio         TipoServicio       @relation(fields: [tipo_servicio_id], references: [id])
+  modelo_auto          String
+  descripcion_problema String
+  fecha_inicio         DateTime
+  hora_inicio          String?           // Formato "HH:mm"
+  fecha_fin            DateTime?
+  duracion_dias_real   Int?
+  estado               EstadoCita         @default(pendiente)
+  razon_rechazo        String?           @db.Text
+  fecha_solicitud      DateTime          @default(now())
+  ocupaciones          OcupacionDiaria[]
+}
+
+model OcupacionDiaria {
+  id          Int      @id @default(autoincrement())
+  cita_id     Int
+  cita        Cita     @relation(fields: [cita_id], references: [id], onDelete: Cascade)
+  fecha       DateTime
+  ocupa_cupo  Boolean
+  hora_inicio String?  // Formato "HH:mm"
+  hora_fin    String?  // Formato "HH:mm"
+
+  @@index([fecha])
+}
+
+model ConfiguracionTaller {
+  id                Int      @id @default(1)
+  capacidad_diaria  Int      @default(5)
+  hora_apertura     String   @default("08:00")
+  hora_cierre       String   @default("18:00")
+  lunes_trabaja     Boolean  @default(true)
+  martes_trabaja    Boolean  @default(true)
+  miercoles_trabaja Boolean  @default(true)
+  jueves_trabaja    Boolean  @default(true)
+  viernes_trabaja   Boolean  @default(true)
+  sabado_trabaja    Boolean  @default(true)
+  domingo_trabaja   Boolean  @default(false)
+}
+
+model Bloqueo {
+  id           Int      @id @default(autoincrement())
+  fecha_inicio DateTime
+  fecha_fin    DateTime
+  motivo       String?
+}
